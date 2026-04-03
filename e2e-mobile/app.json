@@ -1,0 +1,20 @@
+{
+  "expo": {
+    "name": "Offline Module E2E",
+    "slug": "offline-module-e2e",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "offline-e2e",
+    "newArchEnabled": true,
+    "ios": {
+      "bundleIdentifier": "com.offlinemodule.e2e",
+      "supportsTablet": false
+    },
+    "android": {
+      "package": "com.offlinemodule.e2e",
+      "adaptiveIcon": {
+        "backgroundColor": "#1a1a2e"
+      }
+    }
+  }
+}

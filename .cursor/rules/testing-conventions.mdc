@@ -1,0 +1,50 @@
+---
+description: Testing conventions for the offline module
+globs: "__tests__/**/*.ts"
+alwaysApply: false
+---
+
+# Testing Conventions
+
+## Test Setup
+
+- Use `vitest` as the test runner
+- Use `MemoryAdapter` for storage in all core/hook tests
+- Create a `createTestEngine()` helper that wires up MemoryAdapter + mock network
+
+## Test Categories
+
+1. **Core tests** (`__tests__/core/`) - test queue, sync, conflict resolution in isolation
+2. **Adapter tests** (`__tests__/adapters/`) - test each adapter against the interface contract
+3. **React tests** (`__tests__/react/`) - test hooks with `@testing-library/react`
+
+## Key Scenarios to Cover
+
+- Enqueue while offline, sync when online
+- Retry with backoff on API failure
+- Conflict resolution for each strategy
+- Queue deduplication (multiple updates to same entity)
+- Queue ordering (create before update before delete)
+- Network flapping (rapid online/offline toggles)
+- Persistence across engine restarts
+
+## Mocking
+
+```typescript
+// Mock network adapter for controlled online/offline simulation
+class MockNetworkAdapter implements INetworkAdapter {
+  private online = true;
+  private listeners = new Set<(online: boolean) => void>();
+  setOnline(v: boolean) { this.online = v; this.listeners.forEach(l => l(v)); }
+  async isOnline() { return this.online; }
+  subscribe(cb: (online: boolean) => void) {
+    this.listeners.add(cb);
+    return () => this.listeners.delete(cb);
+  }
+}
+```
+
+## Naming
+
+- Test files mirror source: `src/core/pending-queue.ts` -> `__tests__/core/pending-queue.test.ts`
+- Describe blocks: feature name, `it` blocks: behavior description

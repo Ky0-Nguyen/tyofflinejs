@@ -1,0 +1,89 @@
+appId: com.offlinemodule.e2e
+---
+- launchApp:
+    clearState: true
+
+# Scroll down to the DAG panel
+- scrollUntilVisible:
+    element:
+      id: "dag-panel"
+    direction: DOWN
+
+# Go offline first
+- scrollUntilVisible:
+    element:
+      id: "network-toggle-btn"
+    direction: UP
+- tapOn:
+    id: "network-toggle-btn"
+- assertVisible:
+    id: "network-status"
+    text: "Offline"
+
+# Navigate back to DAG panel
+- scrollUntilVisible:
+    element:
+      id: "dag-create-chain-btn"
+    direction: DOWN
+
+# Create the dependency chain (Item -> SubItem -> SubSubItem)
+- tapOn:
+    id: "dag-create-chain-btn"
+- waitForAnimationToEnd
+
+# Verify log entries
+- assertVisible:
+    id: "dag-log-entry"
+
+# Queue should have items
+- scrollUntilVisible:
+    element:
+      id: "queue-badge"
+    direction: UP
+- assertVisible:
+    id: "queue-badge"
+
+# Go online
+- scrollUntilVisible:
+    element:
+      id: "network-toggle-btn"
+    direction: UP
+- tapOn:
+    id: "network-toggle-btn"
+- assertVisible:
+    id: "network-status"
+    text: "Online"
+
+# Scroll to DAG panel and sync
+- scrollUntilVisible:
+    element:
+      id: "dag-sync-btn"
+    direction: DOWN
+- tapOn:
+    id: "dag-sync-btn"
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible:
+      id: "dag-result"
+    timeout: 5000
+
+# Verify results show up
+- assertVisible:
+    id: "dag-failed"
+    text: "Failed: 0"
+
+# Verify temp ID mappings exist
+- assertVisible:
+    id: "dag-mapping-tmp-item-1"
+- assertVisible:
+    id: "dag-mapping-tmp-sub-1"
+- assertVisible:
+    id: "dag-mapping-tmp-subsub-1"
+
+# Clear DAG panel
+- tapOn:
+    id: "dag-clear-btn"
+- waitForAnimationToEnd
+- assertVisible:
+    id: "dag-log-empty"
+    text: "No activity"

@@ -1,0 +1,117 @@
+---
+description: Network resilience patterns for offline-first sync modules
+globs: ["src/core/sync-manager.ts", "src/core/offline-engine.ts", "src/core/pending-queue.ts", "src/core/types.ts", "src/core/network-qualifier.ts", "src/adapters/network/**"]
+alwaysApply: false
+---
+
+# Network Resilience Patterns
+
+## Core Principles
+
+1. **Never trust a single online signal.** Always pair adapter-level debounce (2s) with engine-level stabilization (3s). See `scheduleStabilizedSync()` / `cancelStabilizedSync()` in SyncManager.
+
+2. **Every async call must have a deadline.** Wrap all `executor.execute()` calls with `executeWithTimeout()`. Never `await` a user-provided promise without a timeout guard. Default: 30s via `executionTimeoutMs`.
+
+3. **Classify errors before penalizing.** Use `isNetworkError(error)` from `types.ts` to distinguish transient network failures from real business errors. Network errors revert the action to `pending` without incrementing `retryCount`.
+
+4. **No action left behind.** On startup, `PendingQueue.load()` → `recoverInterrupted()` resets all `in_progress` actions to `pending`. Mid-sync, `resetInProgress()` handles the case where a per-action readiness check fails.
+
+5. **Stabilize before syncing.** When the network comes online, start a debounce timer. If the network drops before the timer fires, cancel it. Only trigger sync when connectivity has been stable for the full window.
+
+## Patterns to Follow
+
+### When adding a new sync trigger
+```typescript
+// GOOD: Use stabilization
+this.syncManager.scheduleStabilizedSync();
+
+// BAD: Sync immediately on network event
+void this.syncManager.processQueue();
+```
+
+### When executing user-provided async code
+```typescript
+// GOOD: Wrap with timeout
+const result = await this.executeWithTimeout(action);
+
+// BAD: Unbounded await
+const result = await this.executor.execute(action);
+```
+
+### When handling sync failures
+```typescript
+// GOOD: Classify the error
+if (isNetworkError(error)) {
+  await this.revertToPending(action); // no retryCount++
+} else {
+  await this.queue.updateStatus(action.id, 'failed'); // retryCount++
+}
+
+// BAD: Treat all errors the same
+await this.queue.updateStatus(action.id, 'failed');
+```
+
+### When checking network mid-sync
+```typescript
+// GOOD: Force-refresh the cache for each action
+const ready = await this.checkSyncReadiness(true);
+if (!ready) {
+  await this.resetInProgress(action);
+  return;
+}
+
+// BAD: Use cached readiness from start of sync
+if (!this.cachedReady) return;
+```
+
+### When implementing auto-retry logic
+```typescript
+// GOOD: Use scheduleAutoRetryIfNeeded after sync completes
+this.scheduleAutoRetryIfNeeded(progress);
+
+// GOOD: Cancel auto-retry on network offline
+this.syncManager.cancelAutoRetry();
+
+// BAD: Retry in an unbounded loop
+while (failed.length > 0) { await this.processQueue(); }
+
+// BAD: Retry without backoff
+setTimeout(() => this.processQueue(), 0);
+```
+
+## Auto-Retry Anti-Loop Safeguards
+
+Every auto-retry implementation MUST include ALL of these layers:
+
+1. **Per-action hard cap** — `maxRetries` (default 3)
+2. **retryCount increment** — on each business error
+3. **Circuit breaker** — `maxConsecutiveRetries` (default 5)
+4. **Backoff delay** — exponential between cycles
+5. **Network check** — before each cycle
+6. **Cancellation** — on offline / destroy
+
+## Config Defaults
+
+| Param | Default | Purpose |
+|-------|---------|---------|
+| `networkStabilizationMs` | 3000 | Debounce before sync trigger |
+| `executionTimeoutMs` | 30000 | Max wait for a single action execution |
+| `cooldownMs` | 5000 | Min gap between sync completions |
+| `maxRetries` | 3 | Max business-error retries per action |
+| `maxConsecutiveRetries` | 5 | Circuit breaker for auto-retry cycles |
+
+## Test Coverage Requirements
+
+When modifying network resilience code, ensure tests cover:
+- Rapid ON/OFF toggling (3+ transitions in < stabilizationMs)
+- App restart with `in_progress` actions in storage
+- Executor that never resolves (timeout scenario)
+- Network error during `execute()` (retry quota preserved)
+- Business error during `execute()` (retry quota consumed)
+- Auto-retry fires after backoff delay on failures
+- Circuit breaker halts after maxConsecutiveRetries
+- Circuit breaker resets on successful cycle or manual retry
+- Auto-retry cancelled on offline / destroy
+- No retry when all actions exhausted maxRetries
+
+Reference: `__tests__/core/network-resilience.test.ts`, `__tests__/core/auto-retry.test.ts`

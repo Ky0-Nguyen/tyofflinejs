@@ -1,0 +1,42 @@
+---
+description: React hooks patterns for the offline module integration layer
+globs: "src/react/**/*.ts,src/react/**/*.tsx"
+alwaysApply: false
+---
+
+# React Hooks Patterns
+
+## Hook Design Rules
+
+- Every hook must accept generic type parameters for type-safe payloads
+- Return tuple or object with clear naming: `[data, { mutate, status, error }]`
+- Memoize returned objects/arrays with `useMemo`/`useCallback` to prevent re-renders
+- Clean up subscriptions in `useEffect` return functions
+
+## Provider Pattern
+
+```typescript
+// OfflineProvider must wrap the app and accept OfflineConfig
+// Use React.createContext with a meaningful error for missing provider
+const ctx = createContext<OfflineEngine | null>(null);
+function useEngine(): OfflineEngine {
+  const engine = useContext(ctx);
+  if (!engine) throw new Error('Wrap your app in <OfflineProvider>');
+  return engine;
+}
+```
+
+## Hook Naming
+
+- `useOfflineStatus` - returns `{ isOnline: boolean }`
+- `useOfflineQuery<T>` - cache-first data reading
+- `useOfflineMutation<T>` - write with offline queue
+- `useSyncStatus` - returns `{ status, progress, lastSyncAt }`
+- `usePendingQueue` - returns pending actions list
+
+## Platform Compatibility
+
+- Hooks must work in both React DOM and React Native
+- No DOM-specific APIs (`document`, `window`) inside hooks
+- No React Native-specific APIs inside hooks
+- Platform concerns are handled by adapters injected via config

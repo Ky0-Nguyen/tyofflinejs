@@ -1,0 +1,46 @@
+appId: com.offlinemodule.e2e
+---
+- launchApp:
+    clearState: true
+
+# Go offline first
+- tapOn:
+    id: "network-toggle-btn"
+- assertVisible:
+    id: "network-status"
+    text: "Offline"
+
+# Queue should be empty initially
+- assertVisible:
+    id: "queue-empty"
+    text: "Queue is empty"
+
+# Create a task while offline
+- tapOn:
+    id: "entity-title-input"
+- inputText: "My Task"
+- tapOn:
+    id: "entity-create-btn"
+- waitForAnimationToEnd
+
+# Queue badge should show at least 1
+- assertVisible:
+    id: "queue-badge"
+
+# Create another task
+- tapOn:
+    id: "entity-title-input"
+- inputText: "Second Task"
+- tapOn:
+    id: "entity-create-btn"
+- waitForAnimationToEnd
+
+# Clear the queue
+- tapOn:
+    id: "queue-clear-btn"
+- waitForAnimationToEnd
+
+# Queue should be empty again
+- assertVisible:
+    id: "queue-empty"
+    text: "Queue is empty"

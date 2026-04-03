@@ -1,0 +1,49 @@
+---
+description: Always create test cases as a Senior QA when writing new code
+globs: "src/**/*.ts,src/**/*.tsx"
+alwaysApply: false
+---
+
+# Senior QA Testing Rule
+
+When creating or modifying any source file, you MUST also create or update corresponding test cases. Think like a Senior QA engineer: cover happy paths, edge cases, error paths, and boundary conditions.
+
+## Required Test Coverage
+
+For every new function, class, or hook, write tests covering:
+
+1. **Happy path** -- normal expected usage
+2. **Edge cases** -- empty inputs, null, undefined, boundary values
+3. **Error paths** -- invalid arguments, network failures, storage errors
+4. **State transitions** -- e.g. pending -> in_progress -> completed/failed
+5. **Concurrency** -- race conditions, duplicate calls, rapid toggling
+
+## Test File Location
+
+Mirror the source path under `__tests__/`:
+
+```
+src/core/pending-queue.ts   → __tests__/core/pending-queue.test.ts
+src/adapters/storage/memory.adapter.ts → __tests__/adapters/memory-adapter.test.ts
+src/react/use-offline-status.ts → __tests__/react/use-offline-status.test.ts
+```
+
+## Test Structure
+
+```typescript
+describe('ComponentName', () => {
+  describe('methodName', () => {
+    it('should handle normal input correctly', () => { /* happy path */ });
+    it('should return null for missing key', () => { /* edge case */ });
+    it('should throw when not initialized', () => { /* error path */ });
+  });
+});
+```
+
+## Checklist Before Completing
+
+- [ ] Every public method has at least one test
+- [ ] Error/throw paths are tested with `expect(...).toThrow()`
+- [ ] Async operations tested with proper `await`
+- [ ] Mocks use `MockNetworkAdapter` / `MockSyncExecutor` / `MemoryAdapter`
+- [ ] No skipped or `.todo` tests left behind

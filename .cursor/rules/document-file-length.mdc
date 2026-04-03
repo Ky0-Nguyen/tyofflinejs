@@ -1,0 +1,45 @@
+---
+description: Enforce max 200-line file limit - split long documents and source files into separate files with clear section titles
+alwaysApply: true
+---
+
+# File Length Limit: 200 Lines
+
+Any file exceeding 200 lines MUST be split into multiple files.
+
+## How to Split
+
+1. Identify logical sections (each section gets its own file)
+2. Name split files with a shared prefix and section suffix
+3. Each file must start with a clear title heading
+
+## Documentation Example
+
+```
+# Too long:
+docs/PRD.md  (450 lines)
+
+# Split into:
+docs/PRD-overview.md       (~120 lines) - vision, goals, personas
+docs/PRD-requirements.md   (~150 lines) - functional + non-functional
+docs/PRD-epics.md          (~180 lines) - epic breakdown
+```
+
+## Source Code Example
+
+```
+# Too long:
+src/core/types.ts  (300 lines)
+
+# Split into:
+src/core/types/storage.ts    - IStorageAdapter, StorageError
+src/core/types/network.ts    - INetworkAdapter, NetworkError
+src/core/types/sync.ts       - SyncStatus, SyncProgress, SyncExecutor
+src/core/types/index.ts      - re-exports all
+```
+
+## Rules
+
+- Check line count BEFORE writing. If projected > 200, plan the split first.
+- Each split file must be self-contained with its own imports.
+- Use a barrel `index.ts` or a table-of-contents README to link split files.

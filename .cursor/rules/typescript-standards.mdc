@@ -1,0 +1,37 @@
+---
+description: TypeScript coding standards for the offline module
+globs: "**/*.ts,**/*.tsx"
+alwaysApply: false
+---
+
+# TypeScript Standards
+
+## Strict Typing
+
+- Never use `any` - use `unknown` and narrow with type guards
+- Export all public interfaces and types from `src/core/types.ts`
+- Use generic type parameters for data payloads: `PendingAction<T>`
+- Prefer `interface` for object shapes, `type` for unions/intersections
+
+## Error Handling
+
+```typescript
+// Use Result pattern for operations that can fail
+type Result<T, E = Error> = { ok: true; value: T } | { ok: false; error: E };
+```
+
+- Wrap adapter errors in domain-specific error classes
+- Never swallow errors silently - log or propagate
+- Async functions must handle rejection paths
+
+## Naming Conventions
+
+- Interfaces: prefix with `I` for adapter contracts (`IStorageAdapter`)
+- Types: PascalCase, no prefix (`PendingAction`, `SyncStatus`)
+- Constants: UPPER_SNAKE_CASE (`MAX_RETRIES`, `DEFAULT_SYNC_INTERVAL`)
+- Files: kebab-case (`sync-manager.ts`, `pending-queue.ts`)
+
+## Exports
+
+- Use named exports exclusively - no default exports
+- Barrel files (`index.ts`) re-export the public API surface only

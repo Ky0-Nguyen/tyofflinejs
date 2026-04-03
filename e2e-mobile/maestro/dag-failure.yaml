@@ -1,0 +1,59 @@
+appId: com.offlinemodule.e2e
+---
+- launchApp:
+    clearState: true
+
+# Go offline
+- tapOn:
+    id: "network-toggle-btn"
+- assertVisible:
+    id: "network-status"
+    text: "Offline"
+
+# Set backend to error mode
+- scrollUntilVisible:
+    element:
+      id: "backend-mode-btn"
+    direction: DOWN
+- tapOn:
+    id: "backend-mode-btn"
+- assertVisible:
+    id: "backend-mode"
+    text: "error"
+
+# Scroll to DAG panel and create chain
+- scrollUntilVisible:
+    element:
+      id: "dag-create-chain-btn"
+    direction: DOWN
+- tapOn:
+    id: "dag-create-chain-btn"
+- waitForAnimationToEnd
+
+# Go online
+- scrollUntilVisible:
+    element:
+      id: "network-toggle-btn"
+    direction: UP
+- tapOn:
+    id: "network-toggle-btn"
+- assertVisible:
+    id: "network-status"
+    text: "Online"
+
+# Sync with DAG (should fail and block descendants)
+- scrollUntilVisible:
+    element:
+      id: "dag-sync-btn"
+    direction: DOWN
+- tapOn:
+    id: "dag-sync-btn"
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible:
+      id: "dag-result"
+    timeout: 5000
+
+# Blocked count should be > 0 since parent failed
+- assertVisible:
+    id: "dag-blocked"

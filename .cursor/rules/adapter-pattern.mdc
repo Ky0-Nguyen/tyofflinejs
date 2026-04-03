@@ -1,0 +1,48 @@
+---
+description: Adapter implementation pattern for storage and network platform adapters
+globs: "src/adapters/**/*.ts"
+alwaysApply: false
+---
+
+# Adapter Implementation Pattern
+
+## Contract Compliance
+
+- Every adapter MUST implement its corresponding interface from `src/core/types.ts`
+- Use `implements IStorageAdapter` or `implements INetworkAdapter` explicitly
+- All interface methods must be implemented - no partial adapters
+
+## Constructor Injection
+
+```typescript
+// Adapters receive platform dependencies via constructor
+export class IndexedDBAdapter implements IStorageAdapter {
+  constructor(private readonly dbName: string, private readonly version?: number) {}
+}
+```
+
+## Error Wrapping
+
+- Catch platform-specific errors and wrap in `StorageError` or `NetworkError`
+- Include the original error as `cause` for debugging
+- Never let platform exceptions leak to Core
+
+```typescript
+try {
+  await db.put(storeName, value, key);
+} catch (cause) {
+  throw new StorageError(`Failed to set key "${key}"`, { cause });
+}
+```
+
+## Platform Guards
+
+- Web adapters may check for API availability: `typeof indexedDB !== 'undefined'`
+- RN adapters may check for native module availability
+- Throw descriptive errors if platform APIs are missing
+
+## Memory Adapter
+
+- `MemoryAdapter` is the reference implementation and test double
+- Must pass all the same tests as platform adapters
+- Uses plain `Map<string, unknown>` internally

@@ -1,0 +1,35 @@
+---
+description: Offline module architecture rules - module boundaries, dependency direction, layering
+alwaysApply: true
+---
+
+# Offline Module Architecture
+
+## Layer Hierarchy (top to bottom)
+
+1. **React Layer** (`src/react/`) - hooks + context, depends on Core
+2. **Core Layer** (`src/core/`) - pure TypeScript, zero platform deps
+3. **Adapters Layer** (`src/adapters/`) - platform-specific implementations of Core interfaces
+
+## Dependency Direction Rules
+
+- `src/react/` MAY import from `src/core/` (types + engine)
+- `src/adapters/` MAY import from `src/core/` (interfaces only)
+- `src/core/` MUST NOT import from `src/react/` or `src/adapters/`
+- `src/adapters/storage/` MUST NOT import from `src/adapters/network/` and vice versa
+- `src/react/` MUST NOT import from `src/adapters/`
+
+## Core Design Principles
+
+- Core layer uses **dependency injection** via interfaces (`IStorageAdapter`, `INetworkAdapter`)
+- All async operations return `Promise` - never use callbacks except in event subscriptions
+- Use the `EventBus` for cross-component communication within Core
+- Every public class/function must be generic where applicable (`PendingAction<T>`)
+- No platform-specific globals (`window`, `navigator`, `AsyncStorage`) in Core
+
+## File Organization
+
+- One class/concern per file
+- Export types from `src/core/types.ts`
+- Re-export public API through barrel files (`index.ts`)
+- Adapter files use `.adapter.ts` suffix

@@ -1,0 +1,66 @@
+appId: com.offlinemodule.e2e
+---
+- launchApp:
+    clearState: true
+
+# Verify initial sync status
+- assertVisible:
+    id: "sync-status"
+    text: "idle"
+
+# Go offline, create task
+- tapOn:
+    id: "network-toggle-btn"
+- assertVisible:
+    id: "network-status"
+    text: "Offline"
+
+- tapOn:
+    id: "entity-title-input"
+- inputText: "Sync Test Task"
+- tapOn:
+    id: "entity-create-btn"
+- waitForAnimationToEnd
+
+# Go back online to trigger sync
+- tapOn:
+    id: "network-toggle-btn"
+- assertVisible:
+    id: "network-status"
+    text: "Online"
+
+# Sync now
+- tapOn:
+    id: "sync-now-btn"
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible:
+      id: "sync-status"
+    timeout: 5000
+
+# Test backend error mode
+- tapOn:
+    id: "backend-mode-btn"
+- assertVisible:
+    id: "backend-mode"
+    text: "error"
+
+# Create another task and sync with error
+- tapOn:
+    id: "entity-title-input"
+- inputText: "Failing Task"
+- tapOn:
+    id: "entity-create-btn"
+- waitForAnimationToEnd
+- tapOn:
+    id: "sync-now-btn"
+- waitForAnimationToEnd
+
+# Switch back to normal mode
+- tapOn:
+    id: "backend-mode-btn"
+- tapOn:
+    id: "backend-mode-btn"
+- assertVisible:
+    id: "backend-mode"
+    text: "normal"

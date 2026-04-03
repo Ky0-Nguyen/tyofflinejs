@@ -1,0 +1,35 @@
+appId: com.offlinemodule.e2e
+---
+- launchApp:
+    clearState: true
+
+# Verify initial online state
+- assertVisible:
+    id: "network-status"
+    text: "Online"
+
+# Toggle to offline
+- tapOn:
+    id: "network-toggle-btn"
+- assertVisible:
+    id: "network-status"
+    text: "Offline"
+
+# Toggle back to online
+- tapOn:
+    id: "network-toggle-btn"
+- assertVisible:
+    id: "network-status"
+    text: "Online"
+
+# Rapid toggles should not break UI
+- tapOn:
+    id: "network-toggle-btn"
+- tapOn:
+    id: "network-toggle-btn"
+- tapOn:
+    id: "network-toggle-btn"
+
+- assertVisible:
+    id: "network-status"
+    text: "Offline"
