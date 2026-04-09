@@ -2,6 +2,8 @@
 
 A cross-platform, tree-shakeable offline-first module for **React** and **React Native**. Pure TypeScript core with pluggable storage and network adapters.
 
+If this project helps you, consider [buying me a coffee](https://www.buymeacoffee.com/rnboss).
+
 ## Features
 
 - **Cross-platform** - same API for React (web) and React Native (mobile)
@@ -242,6 +244,12 @@ class SQLiteAdapter implements IStorageAdapter {
   async clear(): Promise<void> { /* ... */ }
 }
 ```
+
+## Support
+
+If you find this project useful, you can support its development:
+
+<a href="https://www.buymeacoffee.com/rnboss"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=rnboss&button_colour=FFDD00&font_colour=000000&font_family=Cookie&outline_colour=000000&coffee_colour=ffffff" alt="Buy me a coffee" /></a>
 
 ## License
 

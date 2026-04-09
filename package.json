@@ -1,6 +1,6 @@
 {
   "name": "tyofflinejs",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Cross-platform offline-first module for React and React Native with pluggable storage/network adapters",
   "type": "module",
   "main": "./dist/index.cjs",
