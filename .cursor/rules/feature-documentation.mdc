@@ -1,0 +1,16 @@
+---
+description: New user-facing features must ship with README and docs/ updates in the same change.
+alwaysApply: true
+---
+
+# Feature documentation (README + docs)
+
+Whenever you add a **new user-facing feature** (public API, adapter, hook, export, or behavior that consumers rely on):
+
+1. **README.md** — Update the relevant sections: feature list, installation or peer dependencies, quick start, adapter or API tables, and links to deeper docs when appropriate. Examples must use correct import paths (`tyofflinejs`, `tyofflinejs/web`, `tyofflinejs/native`).
+
+2. **docs/** — Add or extend the matching guide under `docs/` (see `docs/README.md` for the index). Prefer a focused new file (for example `docs/<topic>.md`) instead of one unbounded document. Keep each file under 200 lines; split if needed per project conventions.
+
+**Out of scope for this rule:** internal refactors with no API change, test-only changes, typo or formatting-only edits, version bumps without behavior changes, and dependency updates that do not alter how users integrate the library.
+
+If a change is borderline (for example a new optional peer dependency), update README peer/install notes and `docs/` when integration steps differ from what is already documented.

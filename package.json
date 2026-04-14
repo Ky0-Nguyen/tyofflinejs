@@ -1,6 +1,6 @@
 {
   "name": "tyofflinejs",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "Cross-platform offline-first module for React and React Native with pluggable storage/network adapters",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -40,7 +40,8 @@
   },
   "files": [
     "dist",
-    "README.md"
+    "README.md",
+    "docs"
   ],
   "scripts": {
     "build": "tsup",
@@ -60,7 +61,8 @@
   "peerDependencies": {
     "react": ">=17.0.0",
     "@react-native-async-storage/async-storage": ">=1.0.0",
-    "@react-native-community/netinfo": ">=9.0.0"
+    "@react-native-community/netinfo": ">=9.0.0",
+    "react-native-mmkv": ">=2.0.0"
   },
   "peerDependenciesMeta": {
     "react": {
@@ -70,6 +72,9 @@
       "optional": true
     },
     "@react-native-community/netinfo": {
+      "optional": true
+    },
+    "react-native-mmkv": {
       "optional": true
     }
   },

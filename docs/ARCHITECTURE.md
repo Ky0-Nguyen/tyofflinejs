@@ -23,8 +23,8 @@ This design enables a single codebase to run on both React (web) and React Nativ
 │                  Adapter Interfaces                      │
 │  IStorageAdapter              INetworkAdapter            │
 ├───────────────┬───────────────┬─────────────────────────┤
-│ IndexedDB     │ AsyncStorage  │ Memory (test/universal)  │
-│ (Web)         │ (RN)         │                           │
+│ IndexedDB     │ AsyncStorage, MMKV, SQLite KV │ Memory (test/universal)  │
+│ (Web)         │ (RN)          │                           │
 ├───────────────┼───────────────┤                          │
 │ WebNetwork    │ RNNetwork    │                           │
 │ (Web)         │ (RN)         │                           │

@@ -8,7 +8,7 @@ If this project helps you, consider [buying me a coffee](https://www.buymeacoffe
 
 - **Cross-platform** - same API for React (web) and React Native (mobile)
 - **Pure TypeScript core** - zero platform dependencies in the engine
-- **Pluggable adapters** - bring your own storage (IndexedDB, AsyncStorage, or custom) and network detection
+- **Pluggable adapters** - storage via IndexedDB, AsyncStorage, MMKV, SQLite (KV table), or custom `IStorageAdapter`; pluggable network detection
 - **Pending queue** - operations are queued when offline and synced when connectivity returns
 - **Conflict resolution** - built-in strategies (client-wins, server-wins, last-write-wins, merge, manual) or provide your own
 - **React hooks** - `useOfflineQuery`, `useOfflineMutation`, `useOfflineStatus`, `useSyncStatus`, `usePendingQueue`
@@ -34,6 +34,15 @@ No additional dependencies required for `MemoryAdapter`. For persistent storage:
 ```bash
 npm install @react-native-async-storage/async-storage @react-native-community/netinfo
 ```
+
+Optional storage drivers (pick one or more in the app): `react-native-mmkv` for `MmkvAdapter`, and a SQLite library (for example `expo-sqlite`) for `SqliteKvAdapter` — see [docs/native-storage-adapters.md](docs/native-storage-adapters.md).
+
+## Documentation
+
+- **[docs/README.md](docs/README.md)** — topic index (native storage, and future guides).
+- Root **README** — install, quick start, adapter summary, configuration.
+
+When contributing new features, update both the README and the relevant `docs/` page in the same change (see `.cursor/rules/feature-documentation.mdc`).
 
 ## Quick Start
 
@@ -183,6 +192,8 @@ function TaskList() {
 | `IndexedDBAdapter` | Web | `tyofflinejs/web` |
 | `WebNetworkAdapter` | Web | `tyofflinejs/web` |
 | `AsyncStorageAdapter` | React Native | `tyofflinejs/native` |
+| `MmkvAdapter` | React Native (MMKV) | `tyofflinejs/native` |
+| `SqliteKvAdapter` | React Native (SQLite KV) | `tyofflinejs/native` |
 | `RNNetworkAdapter` | React Native | `tyofflinejs/native` |
 
 ### Configuration
@@ -230,12 +241,14 @@ engine.on('queue:added', (action) => console.log('Queued', action));
 
 ## Custom Adapters
 
-Implement `IStorageAdapter` or `INetworkAdapter` to support any platform:
+Built-in native options include `MmkvAdapter` and `SqliteKvAdapter` — see [docs/native-storage-adapters.md](docs/native-storage-adapters.md).
+
+For other backends, implement `IStorageAdapter` or `INetworkAdapter`:
 
 ```typescript
 import type { IStorageAdapter } from 'tyofflinejs';
 
-class SQLiteAdapter implements IStorageAdapter {
+class CustomStorageAdapter implements IStorageAdapter {
   async get<T>(key: string): Promise<T | null> { /* ... */ }
   async set<T>(key: string, value: T): Promise<void> { /* ... */ }
   async remove(key: string): Promise<void> { /* ... */ }
